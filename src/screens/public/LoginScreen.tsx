@@ -1,8 +1,12 @@
 import * as React from "react";
-import {Box, Button, FormControl, Heading, HStack, Input, Link, VStack, Text} from "native-base";
+import { Button, FormControl, HStack, Input, Link, VStack, Text} from "native-base";
 import {useLoginMutation} from "../../redux/api/auth";
+import {useNavigation} from "@react-navigation/native";
+import ErrorHelper from "../../api/helpers/ErrorHelper";
+import PublicLayout from "../../components/layout/PublicLayout";
 
 export default function LoginScreen() {
+    const navigation = useNavigation();
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [login, { isLoading }] = useLoginMutation();
@@ -11,17 +15,12 @@ export default function LoginScreen() {
         try {
             await login({email, password}).unwrap();
         } catch (e) {
-            // TODO: Handle errors
-            console.log(e);
+            ErrorHelper.processErrors(e, () => {});
         }
     };
 
     return (
-        <Box safeArea flex={1} p="2" py="8" w="90%" mx="auto">
-            <Heading size="lg" fontWeight="bold">
-                Sign in
-            </Heading>
-
+        <PublicLayout title="Sign in">
             <VStack space={3} mt="5">
                 <FormControl>
                     <FormControl.Label>
@@ -39,15 +38,11 @@ export default function LoginScreen() {
                     {isLoading ? <Text color="white">Loading...</Text> : <Text color="white">Sign in</Text>}
                 </Button>
                 <HStack mt="6" justifyContent="center">
-                    <Link _text={{ fontSize: 'sm', fontWeight: 'medium', color: 'red.500' }} href="#">
-                        Forgot Password?
-                    </Link>
-                    <Text> | </Text>
-                    <Link _text={{ fontSize: 'sm', fontWeight: 'medium', color: 'red.500'}} href="#">
+                    <Link _text={{ fontSize: 'sm', fontWeight: 'medium', color: 'red.500'}} onPress={() => navigation.navigate('Register')}>
                         Sign Up
                     </Link>
                 </HStack>
             </VStack>
-        </Box>
+        </PublicLayout>
     );
 }
